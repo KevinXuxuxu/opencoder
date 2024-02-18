@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+        <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            var bid = '{{ board.id }}';
+            var host = '{{ board.pid }}';
+        </script>
+        <script src="/static/script/opencoder.js"></script>
+    </head>
+    <body>
+        <div class="main container grid-lg">
+            <header class="column col-sm-12 col-md-10 col-8">
+                <nav>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item">&nbsp;
+                    </ul>
+                </nav>
+                <h1>Welcome to OpenCoder!</h1>
+                <p>Board id: {{board.id}}</p>
+            </header>
+                
+            <main class="content columns">
+                <div class="column col-sm-12 col-md-10 col-8">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">input</span>
+                            <input type="text" class="form-input" id="input-test" placeholder="...">
+                            <button class="btn btn-primary input-group-btn">Send</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="column col-sm-12 col-md-2 col-4">
+                    
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
