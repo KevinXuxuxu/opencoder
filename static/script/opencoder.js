@@ -3,6 +3,13 @@
 
 var peer = new Peer();
 var main_conn = null;
+var logging = false;
+
+function oc_log(s) {
+    if (logging) {
+        console.log(s);
+    }
+}
 
 function oc_report_pid(id) {
     fetch('/api/report/pid', {
@@ -22,7 +29,7 @@ function oc_report_pid(id) {
         return response.json();  // Parse the response body as JSON
     })
     .then(data => {
-        console.log('Response from Flask server:', data);
+        oc_log('Response from Flask server:', data);
         // Handle the response data here
     })
     .catch(error => {
@@ -30,35 +37,111 @@ function oc_report_pid(id) {
     });
 }
 
-function oc_send() {
+function oc_send(payload) {
     if (main_conn === null) {
-        console.log("connection not established.");
+        oc_log('connection not established.');
         return;
     }
-    var payload = $('#input-test').val();
     main_conn.send(payload);
 }
 
+class CodeBoard {
+
+    constructor() {
+        this.data = ['print("hello")'];
+        this._ele = null;
+    }
+
+    ele() {
+        if (this._ele == null) {
+            this._ele = $("#board")[0];
+        }
+        return this._ele;
+    }
+
+    parse() {
+        var new_data = []
+        this.ele().childNodes.forEach(function(e) {
+            new_data.push(e.data);
+        });
+        // oc_log("new_data", new_data);
+        return new_data;
+    }
+
+    refresh() {
+        var new_data = this.parse();
+        var update = {};
+        var max_n = Math.max(new_data.length, this.data.length);
+        for (var i = 0; i < max_n; i++) {
+            if (i >= new_data.length) {
+                update[i] = "";
+            } else if (i >= this.data.length) {
+                update[i] = new_data[i];
+            } else if (new_data[i] !== this.data[i]) {
+                update[i] = new_data[i];
+            }
+        }
+        // oc_log("update", update);
+        this.data = new_data;
+        return update;
+    }
+
+    update(new_lines) {
+        var cnt = 0;
+        for (var i = 0; i < this.data.length; i++) {
+            if (new_lines[i] == null) continue;
+            cnt += 1;
+            this.data[i] = new_lines[i];
+            this.ele().childNodes[i].data = new_lines[i];
+        }
+        var i = this.data.length;
+        while (cnt < Object.keys(new_lines).length) {
+            this.data.push(new_lines[i]);
+            this.ele().appendChild(document.createTextNode(new_lines[i]));
+            cnt += 1;
+            i += 1;
+        }
+    }
+}
+
+var cb = new CodeBoard();
+
 peer.on('open', function(id) {
-    console.log('My peer ID is: ' + id);
+    oc_log('My peer ID is: ' + id);
     if (host == 'None') {
         // This client is the host, send current pid back to server.
         oc_report_pid(id);
         
         // Listen for connection.
-        console.log('host listening for connection...');
+        oc_log('host listening for connection...');
         peer.on('connection', function(conn) {
-            console.log('connection established!');
+            oc_log('connection established!');
             main_conn = conn;
+            // Listen for update from client.
             conn.on('data', function(data) {
-                console.log("received", data);
+                oc_log('received', data);
+                cb.update(data);
             });
+            // Update client with host data
+            setTimeout(function() {
+                oc_log('Update client with host data')
+                oc_send(cb.parse());
+            }, 500);
         });
     } else {
         // Connect to host.
         main_conn = peer.connect(host);
         main_conn.on('data', function(data) {
-            console.log("received", data)
+            oc_log('received', data)
+            cb.update(data);
         });
     }
 });
+
+setInterval(function() {
+    var payload = cb.refresh();
+    if (!(payload == null) && Object.keys(payload).length > 0) {
+        oc_log("sending", payload);
+        oc_send(payload);
+    }
+}, 500);
