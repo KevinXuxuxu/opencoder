@@ -13,7 +13,8 @@
         <script src="/static/script/opencoder.js"></script>
         <script src="https://unpkg.com/@antonz/runno@0.6.1/dist/runno.js"></script>
         <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/engine/wasi.js"></script>
-        <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/snippet.js"></script>
+        <!-- <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/snippet.js"></script> -->
+        <script src="/static/script/codapi/snippet.js"></script>
     </head>
     <body>
         <div class="main container grid-lg">
@@ -29,14 +30,6 @@
                 
             <main class="content columns">
                 <div class="column col-sm-12 col-md-10 col-8">
-                    <!-- <div class="form-group">
-                        <div class="input-group">
-                            <span class="input-group-addon">input</span>
-                            <input type="text" class="form-input" id="input-test" placeholder="...">
-                            <button class="btn btn-primary input-group-btn">Send</button>
-                        </div>
-                    </div> -->
-
                     <pre class="code"><code id="board" class="language-python" data-lang="python">print("hello")</code></pre>
                     <codapi-snippet engine="wasi" sandbox="python" editor="basic"></codapi-snippet>
                 </div>
