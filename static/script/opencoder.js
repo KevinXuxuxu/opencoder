@@ -1,5 +1,6 @@
 // var bid = '{{ board.id }}';
 // var host = '{{ board.pid }}';
+// var is_host = {{ 'true' if is_host else 'false' }};
 
 var peer = new Peer();
 var main_conn = null;
@@ -11,8 +12,8 @@ function oc_log(s) {
     }
 }
 
-function oc_report_pid(id) {
-    fetch('/api/report/pid', {
+function oc_board_update(id) {
+    fetch('/api/board/update', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -150,7 +151,8 @@ peer.on('open', function(id) {
     oc_log('My peer ID is: ' + id);
     if (host == 'None') {
         // This client is the host, send current pid back to server.
-        oc_report_pid(id);
+        oc_board_update(id);
+        is_host = true;
         
         // Listen for connection.
         oc_log('host listening for connection...');
