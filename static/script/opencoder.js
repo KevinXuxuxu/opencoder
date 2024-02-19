@@ -3,7 +3,7 @@
 
 var peer = new Peer();
 var main_conn = null;
-var logging = false;
+var logging = true;
 
 function oc_log(s) {
     if (logging) {
@@ -45,10 +45,27 @@ function oc_send(payload) {
     main_conn.send(payload);
 }
 
+class CodeLine {
+    constructor(type, content) {
+        this.type = type;
+        this.content = content;
+    }
+}
+
+function codeline_to_html(cl) {
+    if (cl.type === 'text') {
+        return document.createTextNode(cl.content);
+    }
+    if (cl.type == 'br') {
+        return document.createElement('br');
+    }
+    return null;
+}
+
 class CodeBoard {
 
     constructor() {
-        this.data = ['print("hello")'];
+        this.data = [new CodeLine('text', 'print("hello")')];
         this._ele = null;
     }
 
@@ -62,7 +79,11 @@ class CodeBoard {
     parse() {
         var new_data = []
         this.ele().childNodes.forEach(function(e) {
-            new_data.push(e.data);
+            if (e.nodeName === '#text') {
+                new_data.push(new CodeLine('text', e.data));
+            } else if (e.nodeName === 'BR') {
+                new_data.push(new CodeLine('br', '<br>'));
+            }
         });
         // oc_log("new_data", new_data);
         return new_data;
@@ -74,10 +95,11 @@ class CodeBoard {
         var max_n = Math.max(new_data.length, this.data.length);
         for (var i = 0; i < max_n; i++) {
             if (i >= new_data.length) {
-                update[i] = "";
+                update[i] = new CodeLine('text', '');
             } else if (i >= this.data.length) {
                 update[i] = new_data[i];
-            } else if (new_data[i] !== this.data[i]) {
+            } else if (new_data[i].type !== this.data[i].type
+                    || new_data[i].content !== this.data[i].content) {
                 update[i] = new_data[i];
             }
         }
@@ -89,15 +111,26 @@ class CodeBoard {
     update(new_lines) {
         var cnt = 0;
         for (var i = 0; i < this.data.length; i++) {
-            if (new_lines[i] == null) continue;
+            var cl = new_lines[i];
+            var node = this.ele().childNodes[i];
+            if (cl == null) continue;
             cnt += 1;
-            this.data[i] = new_lines[i];
-            this.ele().childNodes[i].data = new_lines[i];
+            this.data[i] = cl;
+            if (cl.type === 'text') {
+                if (node.nodeName === 'BR') {
+                    this.ele().replaceChild(
+                        document.createTextNode(cl.content), node);
+                } else {
+                    node.data = cl.content;
+                }
+            } else if (cl.type === 'br') {
+                this.ele().replaceChild(document.createElement('br'), node);
+            }
         }
         var i = this.data.length;
         while (cnt < Object.keys(new_lines).length) {
             this.data.push(new_lines[i]);
-            this.ele().appendChild(document.createTextNode(new_lines[i]));
+            this.ele().appendChild(codeline_to_html(new_lines[i]));
             cnt += 1;
             i += 1;
         }
@@ -138,10 +171,12 @@ peer.on('open', function(id) {
     }
 });
 
-setInterval(function() {
-    var payload = cb.refresh();
-    if (!(payload == null) && Object.keys(payload).length > 0) {
-        oc_log("sending", payload);
-        oc_send(payload);
-    }
-}, 500);
+window.onload = function() {
+    $('#board')[0].addEventListener('input', function() {
+        var payload = cb.refresh();
+        if (!(payload == null) && Object.keys(payload).length > 0) {
+            oc_log("sending", payload);
+            oc_send(payload);
+        }
+    });
+}
