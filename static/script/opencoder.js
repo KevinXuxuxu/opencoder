@@ -37,14 +37,6 @@ function oc_report_pid(id) {
     });
 }
 
-function oc_send(payload) {
-    if (main_conn === null) {
-        oc_log('connection not established.');
-        return;
-    }
-    main_conn.send(payload);
-}
-
 class CodeLine {
     constructor(type, content) {
         this.type = type;
@@ -112,20 +104,10 @@ class CodeBoard {
         var cnt = 0;
         for (var i = 0; i < this.data.length; i++) {
             var cl = new_lines[i];
-            var node = this.ele().childNodes[i];
             if (cl == null) continue;
             cnt += 1;
             this.data[i] = cl;
-            if (cl.type === 'text') {
-                if (node.nodeName === 'BR') {
-                    this.ele().replaceChild(
-                        document.createTextNode(cl.content), node);
-                } else {
-                    node.data = cl.content;
-                }
-            } else if (cl.type === 'br') {
-                this.ele().replaceChild(document.createElement('br'), node);
-            }
+            this.ele().replaceChild(codeline_to_html(cl), this.ele().childNodes[i])
         }
         var i = this.data.length;
         while (cnt < Object.keys(new_lines).length) {
@@ -139,6 +121,31 @@ class CodeBoard {
 
 var cb = new CodeBoard();
 
+function oc_send(payload) {
+    if (main_conn === null) {
+        oc_log('connection not established.');
+        return;
+    }
+    main_conn.send(payload);
+}
+
+function oc_receive(payload) {
+    if (payload.type === "update") {
+        cb.update(payload.data);
+    } else if (payload.type === "run") {
+        $('codapi-toolbar')[0].dispatchEvent(new Event('run'));
+    } else {
+        oc_log("Unrecognized payload:", payload);
+    }
+}
+
+function oc_listen() {
+    main_conn.on('data', function(payload) {
+        oc_log('received', payload);
+        oc_receive(payload);
+    });
+}
+
 peer.on('open', function(id) {
     oc_log('My peer ID is: ' + id);
     if (host == 'None') {
@@ -151,32 +158,38 @@ peer.on('open', function(id) {
             oc_log('connection established!');
             main_conn = conn;
             // Listen for update from client.
-            conn.on('data', function(data) {
-                oc_log('received', data);
-                cb.update(data);
-            });
+            oc_listen();
             // Update client with host data
             setTimeout(function() {
                 oc_log('Update client with host data')
-                oc_send(cb.parse());
+                oc_send({
+                    type: 'update',
+                    data: cb.parse()
+                });
             }, 500);
         });
     } else {
         // Connect to host.
         main_conn = peer.connect(host);
-        main_conn.on('data', function(data) {
-            oc_log('received', data)
-            cb.update(data);
-        });
+        oc_listen();
     }
 });
 
 window.onload = function() {
     $('#board')[0].addEventListener('input', function() {
-        var payload = cb.refresh();
-        if (!(payload == null) && Object.keys(payload).length > 0) {
+        var update = cb.refresh();
+        if (!(update == null) && Object.keys(update).length > 0) {
+            var payload = {
+                type: "update",
+                data: update
+            }
             oc_log("sending", payload);
             oc_send(payload);
         }
     });
+    // Only listen the click event on button instead of run event on codapi-toolbar
+    // to prevent infinite trigger.
+    $('codapi-toolbar button')[0].addEventListener('click', function() {
+        oc_send({type: 'run'});
+    })
 }
