@@ -1,41 +1,16 @@
-// var bid = '{{ board.id }}';
-// var host = '{{ board.pid }}';
-// var is_host = {{ 'true' if is_host else 'false' }};
-
-var peer = new Peer();
 var main_conn = null;
-var logging = true;
 
-function oc_log(s) {
-    if (logging) {
-        console.log(s);
-    }
+function oc_url_arg(key) {
+    var queryParams = new URLSearchParams(window.location.search);
+    return queryParams.get(key);
 }
 
-function oc_board_update(id) {
-    fetch('/api/board/update', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            bid: bid,
-            pid: id
-        })  // JSON data to send in the request body
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();  // Parse the response body as JSON
-    })
-    .then(data => {
-        oc_log('Response from Flask server:', data);
-        // Handle the response data here
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-    });
+var logging = oc_url_arg('logging');
+
+function oc_log() {
+    if (logging === 'on') {
+        console.log.apply(null, arguments);
+    }
 }
 
 class CodeLine {
@@ -147,16 +122,25 @@ function oc_listen() {
     });
 }
 
-peer.on('open', function(id) {
-    oc_log('My peer ID is: ' + id);
-    if (host == 'None') {
-        // This client is the host, send current pid back to server.
-        oc_board_update(id);
-        is_host = true;
-        
+function oc_add_error_handler(peer) {
+    peer.on('error', function(err) {
+        oc_log('peer error', err);
+    });
+    peer.on('disconnected', function() {
+        oc_log('peer disconnected');
+    });
+}
+
+var host_peer = null;
+var host_pid = oc_url_arg('pid');
+
+function oc_host() {
+    host_peer = new Peer(host_pid);
+    oc_add_error_handler(host_peer);
+    host_peer.on('open', function(id) {
         // Listen for connection.
         oc_log('host listening for connection...');
-        peer.on('connection', function(conn) {
+        host_peer.on('connection', function(conn) {
             oc_log('connection established!');
             main_conn = conn;
             // Listen for update from client.
@@ -170,12 +154,27 @@ peer.on('open', function(id) {
                 });
             }, 500);
         });
-    } else {
-        // Connect to host.
-        main_conn = peer.connect(host);
-        oc_listen();
-    }
-});
+    });
+}
+
+var client_peer = new Peer();
+
+client_peer.on('open', function() {
+    client_peer.on('error', function(err) {
+        oc_log('peer error');
+        if (err.message.startsWith('Could not connect to peer')) {
+            client_peer.destroy();
+            oc_host();
+        }
+    });
+    client_peer.on('disconnected', function() {
+        oc_log('peer disconnected');
+    });
+
+    oc_log('trying to connect to', host_pid);
+    main_conn = client_peer.connect(host_pid);
+    oc_listen();
+})
 
 window.onload = function() {
     $('#board')[0].addEventListener('input', function() {

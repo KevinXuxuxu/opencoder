@@ -6,11 +6,6 @@
         <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
         <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            var bid = '{{ board.id }}';
-            var host = '{{ board.pid }}';
-            var is_host = {{ 'true' if is_host else 'false' }};
-        </script>
         <script src="/static/script/opencoder.js"></script>
         <script src="https://unpkg.com/@antonz/runno@0.6.1/dist/runno.js"></script>
         <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/engine/wasi.js"></script>
@@ -26,7 +21,6 @@
                     </ul>
                 </nav>
                 <h1>Welcome to OpenCoder!</h1>
-                <p>Board id: <span class="chip bg-secondary">{{board.id}}</span></p>
             </header>
                 
             <main class="content columns">
