@@ -1,6 +1,8 @@
 # OpenCoder
 
-Open-source "serverless" collaborative coding and execution site.
+Open-source light-weight "serverless" collaborative coding and execution site, powered by [codapi](https://codapi.org/) and [PeerJS](https://peerjs.com/).
+
+The connection is p2p fully based on generated peer_id, and code execution runs in [WASI](https://wasi.dev/) environment in browser. As a result it is truly "serverless" and able to be hosted as a static site and even through CDN.
 
 [Try it!](https://site.fzxu.me/opencoder)
 
