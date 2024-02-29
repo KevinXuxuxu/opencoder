@@ -3,7 +3,8 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+        <link id="spectre" rel="stylesheet" href="/static/style/spectre.min.css">
+
         <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="/opencoder/static/script/opencoder.js"></script>
@@ -11,15 +12,27 @@
         <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/engine/wasi.js"></script>
         <!-- <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/snippet.js"></script> -->
         <script src="/opencoder/static/script/codapi/snippet.js"></script>
+        <script src="/static/script/color_theme.js"></script>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/opencoder/static/favicon_io/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/opencoder/static/favicon_io/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/opencoder/static/favicon_io/favicon-16x16.png">
+        <link rel="manifest" href="/opencoder/static/favicon_io/site.webmanifest">
+
     </head>
     <body>
         <div class="main container grid-lg">
+            <header class="navbar">
+                <section class="navbar-section">
+                </section>
+                <section class="navbar-section">
+                    <label class="form-switch">
+                        <input type="checkbox" onclick="switch_color_theme();">
+                        <i class="form-icon"></i> <p id="moon"></p>
+                    </label>
+                </section>
+            </header>
             <header class="column col-sm-12 col-md-10 col-8">
-                <nav>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item">&nbsp;
-                    </ul>
-                </nav>
                 <h1>Welcome to OpenCoder!</h1>
             </header>
                 
