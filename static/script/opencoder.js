@@ -176,6 +176,8 @@ client_peer.on('open', function() {
     oc_listen();
 })
 
+var prev_window_onload = window.onload;
+
 window.onload = function() {
     $('#board')[0].addEventListener('input', function() {
         var update = cb.refresh();
@@ -193,4 +195,10 @@ window.onload = function() {
     $('codapi-toolbar button')[0].addEventListener('click', function() {
         oc_send({type: 'run'});
     })
+
+    console.log(typeof(prev_window_onload))
+    if (typeof(prev_window_onload) === 'function') {
+        console.log('do prev');
+        prev_window_onload();
+    }
 }

@@ -25,5 +25,6 @@ flask run -h 0.0.0.0 -p 80
 # build docker
 docker build . -t opencoder
 # run the docker container
-docker run -p 8888:80 -v `pwd`:/root/opencoder opencoder
+docker run -p 8888:8888 -v `pwd`:/root/opencoder opencoder
 ```
+Then visit http://localhost:8888 and have fun :)
