@@ -3,7 +3,6 @@ from flask import Flask, Blueprint, render_template
 
 sub_app = Blueprint('opencoder', __name__, template_folder='templates', static_folder='static')
 url_prefix = os.environ.get('OPENCODER_URL_PREFIX', '')
-print(url_prefix)
 
 @sub_app.route('/')
 def index():

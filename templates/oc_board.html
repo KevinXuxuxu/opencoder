@@ -21,7 +21,8 @@
         <link rel="apple-touch-icon" sizes="180x180" href="{{ prefix }}/static/favicon_io/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ prefix }}/static/favicon_io/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ prefix }}/static/favicon_io/favicon-16x16.png">
-        <link rel="manifest" href="{{ prefix }}/static/favicon_io/site.webmanifest">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ prefix }}/static/favicon_io/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="{{ prefix }}/static/favicon_io/android-chrome-512x512.png">
 
     </head>
     <body>
@@ -42,6 +43,7 @@
                 
             <main class="content columns">
                 <div class="column col-sm-12 col-md-10 col-8">
+                    <span id="copy" class="label label-rounded label-secondary c-hand" onclick="copy_link();">Click to copy</span> and share this link to start coding together!
                     <pre class="code"><code id="board" class="language-python" data-lang="python">print("hello")</code></pre>
                     <codapi-snippet engine="wasi" sandbox="python" editor="basic"></codapi-snippet>
                 </div>

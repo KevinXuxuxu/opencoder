@@ -1,5 +1,12 @@
 var main_conn = null;
 
+function copy_link() {
+    navigator.clipboard.writeText(document.location.href);
+    if (!$('#copy')[0].textContent.endsWith('✅')) {
+        $('#copy')[0].textContent += ' ✅';
+    }
+}
+
 function oc_url_arg(key) {
     var queryParams = new URLSearchParams(window.location.search);
     return queryParams.get(key);
@@ -192,13 +199,11 @@ window.onload = function() {
     });
     // Only listen the click event on button instead of run event on codapi-toolbar
     // to prevent infinite trigger.
-    $('codapi-toolbar button')[0].addEventListener('click', function() {
+    $('codapi-toolbar span')[0].addEventListener('click', function() {
         oc_send({type: 'run'});
     })
 
-    console.log(typeof(prev_window_onload))
     if (typeof(prev_window_onload) === 'function') {
-        console.log('do prev');
         prev_window_onload();
     }
 }
