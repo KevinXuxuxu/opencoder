@@ -530,19 +530,34 @@ ${t.stack}`
             constructor(t, e, s) {
                 super(), (this.el = t), (this.mode = e), (this.executeFunc = s), this.listen();
             }
+            addEventListenerAndRecord(e, f) {
+                if (this.eventListeners[e] == null) {
+                    this.eventListeners[e] = [];
+                }
+                this.eventListeners[e].push(f);
+                this.el.addEventListener(e, f);
+            }
             listen() {
+                this.eventListeners = {};
                 if (this.mode != g.off) {
                     if (this.mode == g.external) {
-                        this.el.addEventListener("keydown", this.handleExecute.bind(this));
+                        this.addEventListenerAndRecord("keydown", this.handleExecute.bind(this));
                         return;
                     }
                     (this.el.contentEditable = "true"),
-                        this.el.addEventListener("keydown", this.handleIndent.bind(this)),
-                        this.el.addEventListener("keydown", this.handleHide.bind(this)),
-                        this.el.addEventListener("keydown", this.handleExecute.bind(this)),
-                        this.el.addEventListener("paste", this.onPaste.bind(this)),
+                        this.addEventListenerAndRecord("keydown", this.handleIndent.bind(this)),
+                        this.addEventListenerAndRecord("keydown", this.handleHide.bind(this)),
+                        this.addEventListenerAndRecord("keydown", this.handleExecute.bind(this)),
+                        this.addEventListenerAndRecord("paste", this.onPaste.bind(this)),
                         (this.onFocus = this.initEditor.bind(this)),
-                        this.el.addEventListener("focus", this.onFocus);
+                        this.addEventListenerAndRecord("focus", this.onFocus);
+                }
+            }
+            unlisten() {
+                for (var e of Object.keys(this.eventListeners)) {
+                    for (var f of this.eventListeners[e]) {
+                        this.el.removeEventListener(e, f);
+                    }
                 }
             }
             initEditor(t) {

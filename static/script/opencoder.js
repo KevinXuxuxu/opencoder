@@ -18,6 +18,7 @@ function oc_new_codapi_snippet(lang) {
 function oc_change_lang(lang) {
     var snippet = $('codapi-snippet')[0];
     var main_div = $('#main_div')[0];
+    snippet.snippet.unlisten();
     main_div.removeChild(snippet);
     main_div.appendChild(oc_new_codapi_snippet(lang));
 }
