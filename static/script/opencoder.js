@@ -1,10 +1,25 @@
 var main_conn = null;
 
-function copy_link() {
+function oc_copy_link() {
     navigator.clipboard.writeText(document.location.href);
     if (!$('#copy')[0].textContent.endsWith('✅')) {
         $('#copy')[0].textContent += ' ✅';
     }
+}
+
+function oc_new_codapi_snippet(lang) {
+    var snippet = document.createElement('codapi-snippet');
+    snippet.setAttribute('engine', 'wasi');
+    snippet.setAttribute('sandbox', lang);
+    snippet.setAttribute('editor', 'basic');
+    return snippet;
+}
+
+function oc_change_lang(lang) {
+    var snippet = $('codapi-snippet')[0];
+    var main_div = $('#main_div')[0];
+    main_div.removeChild(snippet);
+    main_div.appendChild(oc_new_codapi_snippet(lang));
 }
 
 function oc_url_arg(key) {
@@ -201,6 +216,10 @@ window.onload = function() {
     // to prevent infinite trigger.
     $('codapi-toolbar span')[0].addEventListener('click', function() {
         oc_send({type: 'run'});
+    })
+
+    $('#select_lang')[0].addEventListener('change', function(e) {
+        oc_change_lang(e.target.value.toLowerCase().trim());
     })
 
     if (typeof(prev_window_onload) === 'function') {

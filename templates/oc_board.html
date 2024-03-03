@@ -42,8 +42,20 @@
             </header>
                 
             <main class="content columns">
-                <div class="column col-sm-12 col-md-10 col-8">
-                    <span id="copy" class="label label-rounded label-secondary c-hand" onclick="copy_link();">Click to copy</span> and share this link to start coding together!
+                <div id="main_div" class="column col-sm-12 col-md-10 col-8">
+                    <div class="columns">
+                        <div class="column col-9">
+                            <span id="copy" class="label label-rounded label-secondary c-hand" onclick="oc_copy_link();">Click to copy</span> and share this link to start coding together!
+                        </div>
+                        <div class="column col-3 text-right">
+                            <select id="select_lang" class="form-select select-sm">
+                                <option>Python</option>
+                                <option>Lua</option>
+                                <option>Ruby</option>
+                                <option>Javascript</option>
+                            </select>
+                        </div>
+                    </div>
                     <pre class="code"><code id="board" class="language-python" data-lang="python">print("hello")</code></pre>
                     <codapi-snippet engine="wasi" sandbox="python" editor="basic"></codapi-snippet>
                 </div>
