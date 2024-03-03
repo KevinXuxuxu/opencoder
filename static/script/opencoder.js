@@ -7,6 +7,14 @@ function oc_copy_link() {
     }
 }
 
+function oc_attach_execute_listener() {
+    // Only listen the click event on button instead of run event on codapi-toolbar
+    // to prevent infinite trigger.
+    $('codapi-toolbar span')[0].addEventListener('click', function() {
+        oc_send({type: 'run'});
+    })
+}
+
 function oc_new_codapi_snippet(lang) {
     var snippet = document.createElement('codapi-snippet');
     snippet.setAttribute('engine', 'wasi');
@@ -21,6 +29,7 @@ function oc_change_lang(lang) {
     snippet.snippet.unlisten();
     main_div.removeChild(snippet);
     main_div.appendChild(oc_new_codapi_snippet(lang));
+    oc_attach_execute_listener();
 }
 
 function oc_url_arg(key) {
@@ -133,6 +142,9 @@ function oc_receive(payload) {
         cb.update(payload.data);
     } else if (payload.type === "run") {
         $('codapi-toolbar')[0].dispatchEvent(new Event('run'));
+    } else if (payload.type == "lang") {
+        $('#select_lang')[0].value = payload.lang;
+        oc_change_lang(payload.lang.toLowerCase().trim());
     } else {
         oc_log("Unrecognized payload:", payload);
     }
@@ -213,14 +225,12 @@ window.onload = function() {
             oc_send(payload);
         }
     });
-    // Only listen the click event on button instead of run event on codapi-toolbar
-    // to prevent infinite trigger.
-    $('codapi-toolbar span')[0].addEventListener('click', function() {
-        oc_send({type: 'run'});
-    })
+    
+    oc_attach_execute_listener();
 
     $('#select_lang')[0].addEventListener('change', function(e) {
         oc_change_lang(e.target.value.toLowerCase().trim());
+        oc_send({type: 'lang', lang: e.target.value})
     })
 
     if (typeof(prev_window_onload) === 'function') {
