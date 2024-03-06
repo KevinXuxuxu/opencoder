@@ -16,8 +16,9 @@ function oc_attach_execute_listener() {
 }
 
 function oc_new_codapi_snippet(lang) {
+    var engine = lang === 'javascript' ? 'browser' : 'wasi';
     var snippet = document.createElement('codapi-snippet');
-    snippet.setAttribute('engine', 'wasi');
+    snippet.setAttribute('engine', engine);
     snippet.setAttribute('sandbox', lang);
     snippet.setAttribute('editor', 'basic');
     return snippet;
