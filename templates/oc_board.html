@@ -3,7 +3,7 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link id="spectre" rel="stylesheet" href="{{ prefix }}/static/style/spectre.min.css">
+        <link id="spectre" rel="stylesheet" href="{{ prefix }}/static/style/spectre.css">
 
         <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -11,10 +11,6 @@
         <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/engine/wasi.js"></script>
         <!-- <script src="https://unpkg.com/@antonz/codapi@0.12.0/dist/snippet.js"></script> -->
         <script src="{{ prefix }}/static/script/codapi/snippet.js"></script>
-        <script>
-            var dark_css_path = "{{ prefix }}/static/style/spectre_dark.min.css";
-            var light_css_path = "{{ prefix }}/static/style/spectre.min.css";
-        </script>
         <script src="{{ prefix }}/static/script/color_theme.js"></script>
         <script src="{{ prefix }}/static/script/opencoder.js"></script>
 
@@ -36,7 +32,7 @@
                     </a>
                     &nbsp;&nbsp;
                     <label class="form-switch">
-                        <input type="checkbox" onclick="switch_color_theme();">
+                        <input id="theme-checkbox" type="checkbox" onclick="switch_color_theme();">
                         <i class="form-icon"></i> <p id="moon"></p>
                     </label>
                 </section>
