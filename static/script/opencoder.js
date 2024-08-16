@@ -1,3 +1,72 @@
+var board_changed = false;
+
+function getCaretCharacterOffsetWithin(element) {
+    let caretOffset = 0;
+    const doc = element.ownerDocument || element.document;
+    const win = doc.defaultView || doc.parentWindow;
+    const selection = win.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(element);
+        preCaretRange.setEnd(range.endContainer, range.endOffset);
+        caretOffset = preCaretRange.toString().length;
+    }
+    return caretOffset;
+}
+
+function setCaretPosition(element, offset) {
+    const doc = element.ownerDocument || element.document;
+    const win = doc.defaultView || doc.parentWindow;
+    const selection = win.getSelection();
+
+    let charIndex = 0;
+    let range = doc.createRange();
+    range.setStart(element, 0);
+    range.collapse(true);
+
+    const nodeStack = [element];
+    let node;
+    let found = false;
+
+    while (!found && (node = nodeStack.pop())) {
+        if (node.nodeType === 3) { // TEXT_NODE
+            const nextCharIndex = charIndex + node.length;
+            if (offset >= charIndex && offset <= nextCharIndex) {
+                range.setStart(node, offset - charIndex);
+                range.setEnd(node, offset - charIndex);
+                found = true;
+            }
+            charIndex = nextCharIndex;
+        } else {
+            let i = node.childNodes.length;
+            while (i--) {
+                nodeStack.push(node.childNodes[i]);
+            }
+        }
+    }
+
+    if (found) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
+function oc_highlight() {
+    if (!board_changed) {
+        return;
+    }
+    let e = $('#board')[0];
+    console.log('(', e.textContent, ')');
+    let offset = getCaretCharacterOffsetWithin(e);
+    e.removeAttribute('data-highlighted');
+    hljs.highlightElement(e);
+    setCaretPosition(e, offset);
+    board_changed = false;
+}
+
+
+
 var main_conn = null;
 
 function oc_copy_link() {
@@ -215,7 +284,10 @@ client_peer.on('open', function() {
 var prev_window_onload = window.onload;
 
 window.onload = function() {
+    oc_highlight();
+    setInterval(oc_highlight, 2000);
     $('#board')[0].addEventListener('input', function() {
+        board_changed = true;
         var update = cb.refresh();
         if (!(update == null) && Object.keys(update).length > 0) {
             var payload = {
@@ -226,7 +298,7 @@ window.onload = function() {
             oc_send(payload);
         }
     });
-    
+
     oc_attach_execute_listener();
 
     $('#select_lang')[0].addEventListener('change', function(e) {
