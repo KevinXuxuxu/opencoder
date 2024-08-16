@@ -65,8 +65,6 @@ function oc_highlight() {
     board_changed = false;
 }
 
-
-
 var main_conn = null;
 
 function oc_copy_link() {
